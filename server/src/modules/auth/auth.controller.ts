@@ -5,8 +5,7 @@ import asyncHandler from "../../utils/asyncHandler";
 import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 
-import { registerUser } from "./auth.service";
-import { loginUser } from "./auth.service";
+import {registerUser,loginUser,getProfile,} from "./auth.service";
 
 
 export const register = asyncHandler(async (req: Request, res: Response) => {
@@ -43,4 +42,18 @@ export const login = asyncHandler(async (req, res) => {
         "Login successful"
       )
     );
+});
+
+
+
+export const me = asyncHandler(async (req, res) => {
+  const user = await getProfile(req.user!.id);
+
+  return res.json(
+    new ApiResponse(
+      200,
+      user,
+      "Profile fetched successfully"
+    )
+  );
 });
