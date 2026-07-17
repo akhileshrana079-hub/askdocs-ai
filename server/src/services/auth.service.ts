@@ -2,18 +2,13 @@ import prisma from "../lib/prisma";
 import { toUserResponse } from "../mappers/user.mapper";
 import ApiError from "../utils/ApiError";
 import { hashPassword } from "../utils/hash";
-
-interface RegisterInput {
-  name: string;
-  email: string;
-  password: string;
-}
+import { RegisterDto } from "../dto/auth.dto";
 
 export const registerUser = async ({
   name,
   email,
   password,
-}: RegisterInput) => {
+}: RegisterDto) => {
   const existingUser = await prisma.user.findUnique({
     where: {
       email,
