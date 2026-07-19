@@ -3,12 +3,13 @@ import fs from "fs";
 import path from "path";
 import ApiError from "../../utils/ApiError";
 import { toDocumentResponse } from "./document.mapper";
+import { parseDocument } from "./parser/parser";
 
 export const createDocument = async (
   file: Express.Multer.File,
   ownerId: string
 ) => {
-  return prisma.document.create({
+  const document = await prisma.document.create({
     data: {
       filename: file.filename,
       originalName: file.originalname,
@@ -18,6 +19,14 @@ export const createDocument = async (
       ownerId,
     },
   });
+
+  const extractedText = await parseDocument(document.path);
+
+  console.log("\n========== EXTRACTED TEXT ==========\n");
+  console.log(extractedText);
+  console.log("\n====================================\n");
+
+  return document;
 };
 
 export const getDocuments = async (userId: string) => {
@@ -82,3 +91,5 @@ export const deleteDocument = async (
 
   return null;
 };
+
+
