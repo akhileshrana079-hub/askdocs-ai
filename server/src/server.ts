@@ -1,6 +1,13 @@
 import app from "./app";
 import { env } from "./config/env";
+import { createCollection } from "./modules/document/vector/qdrant.service";
 
-app.listen(env.PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${env.PORT}`);
-});
+const startServer = async () => {
+  await createCollection();
+
+  app.listen(env.PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${env.PORT}`);
+  });
+};
+
+startServer();
