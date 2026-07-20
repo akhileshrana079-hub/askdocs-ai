@@ -4,6 +4,7 @@ import path from "path";
 import ApiError from "../../utils/ApiError";
 import { toDocumentResponse } from "./document.mapper";
 import { parseDocument } from "./parser/parser";
+import { splitIntoChunks } from "./chunk/chunk.service";
 
 export const createDocument = async (
   file: Express.Multer.File,
@@ -21,6 +22,15 @@ export const createDocument = async (
   });
 
   const extractedText = await parseDocument(document.path);
+
+  const chunks = await splitIntoChunks(extractedText);
+
+console.log("Number of chunks:", chunks.length);
+
+chunks.forEach((chunk, index) => {
+  console.log(`\n===== CHUNK ${index + 1} =====`);
+  console.log(chunk);
+});
 
   console.log("\n========== EXTRACTED TEXT ==========\n");
   console.log(extractedText);
