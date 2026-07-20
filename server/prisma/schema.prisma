@@ -39,3 +39,14 @@ model Document {
   ownerId       String
   owner         User @relation(fields:[ownerId], references:[id], onDelete: Cascade)
 }
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  content    String
+  chunkIndex Int
+
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  createdAt  DateTime @default(now())
+}

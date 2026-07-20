@@ -5,6 +5,7 @@ import ApiError from "../../utils/ApiError";
 import { toDocumentResponse } from "./document.mapper";
 import { parseDocument } from "./parser/parser";
 import { splitIntoChunks } from "./chunk/chunk.service";
+import { createEmbedding } from "./embedding/embedding.service";
 
 export const createDocument = async (
   file: Express.Multer.File,
@@ -25,12 +26,16 @@ export const createDocument = async (
 
   const chunks = await splitIntoChunks(extractedText);
 
-console.log("Number of chunks:", chunks.length);
+  console.log("Number of chunks:", chunks.length);
 
-chunks.forEach((chunk, index) => {
-  console.log(`\n===== CHUNK ${index + 1} =====`);
-  console.log(chunk);
+  chunks.forEach((chunk, index) => {
+    console.log(`\n===== CHUNK ${index + 1} =====`);
+    console.log(chunk);
 });
+
+  const embedding = await createEmbedding(chunks[0]);
+  console.log("Embedding length:", embedding.length);
+  console.log(embedding.slice(0, 10));
 
   console.log("\n========== EXTRACTED TEXT ==========\n");
   console.log(extractedText);
