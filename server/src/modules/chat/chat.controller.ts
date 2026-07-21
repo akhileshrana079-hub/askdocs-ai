@@ -5,7 +5,7 @@ import { retrieveContext } from "./chat.service";
 export const search = asyncHandler(async (req, res) => {
   const { question } = req.body;
 
-  const result = await retrieveContext(
+  const answer = await retrieveContext(
     question,
     req.user!.id
   );
@@ -13,7 +13,7 @@ export const search = asyncHandler(async (req, res) => {
   return res.json(
     new ApiResponse(
       200,
-      result,
+      answer,
       "Relevant chunks found"
     )
   );
