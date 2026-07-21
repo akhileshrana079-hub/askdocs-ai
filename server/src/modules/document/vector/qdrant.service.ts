@@ -15,3 +15,21 @@ export const createCollection = async () => {
     console.log("Collection created");
   }
 };
+
+
+export const storeEmbedding = async (
+  id: string,
+  embedding: number[],
+  payload: any
+) => {
+  await qdrant.upsert("documents", {
+    wait: true,
+    points: [
+      {
+        id,
+        vector: embedding,
+        payload,
+      },
+    ],
+  });
+};

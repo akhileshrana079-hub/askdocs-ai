@@ -6,6 +6,8 @@ import { toDocumentResponse } from "./document.mapper";
 import { parseDocument } from "./parser/parser";
 import { splitIntoChunks } from "./chunk/chunk.service";
 import { createEmbedding } from "./embedding/embedding.service";
+import { storeEmbedding } from "./vector/qdrant.service";
+import crypto from "crypto";
 
 export const createDocument = async (
   file: Express.Multer.File,
@@ -32,10 +34,19 @@ export const createDocument = async (
     console.log(`\n===== CHUNK ${index + 1} =====`);
     console.log(chunk);
 });
+  for (const chunk of chunks) {
+  const embedding = await createEmbedding(chunk);
 
-  const embedding = await createEmbedding(chunks[0]);
-  console.log("Embedding length:", embedding.length);
-  console.log(embedding.slice(0, 10));
+  await storeEmbedding(
+    crypto.randomUUID(),
+    embedding,
+    {
+      documentId: document.id,
+      ownerId,
+      text: chunk,
+    }
+  );
+}
 
   console.log("\n========== EXTRACTED TEXT ==========\n");
   console.log(extractedText);
