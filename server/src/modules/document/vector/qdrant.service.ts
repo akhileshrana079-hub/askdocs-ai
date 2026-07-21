@@ -33,3 +33,28 @@ export const storeEmbedding = async (
     ],
   });
 };
+
+
+export const searchEmbeddings = async (
+  embedding: number[],
+  ownerId: string,
+  limit = 5
+) => {
+  const result = await qdrant.search("documents", {
+    vector: embedding,
+    limit,
+    filter: {
+      must: [
+        {
+          key: "ownerId",
+          match: {
+            value: ownerId,
+          },
+        },
+      ],
+    },
+    with_payload: true,
+  });
+
+  return result;
+};
