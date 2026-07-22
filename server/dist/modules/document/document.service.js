@@ -9,8 +9,13 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const ApiError_1 = __importDefault(require("../../utils/ApiError"));
 const document_mapper_1 = require("./document.mapper");
+const parser_1 = require("./parser/parser");
+const chunk_service_1 = require("./chunk/chunk.service");
+const embedding_service_1 = require("./embedding/embedding.service");
+const qdrant_service_1 = require("./vector/qdrant.service");
+const crypto_1 = __importDefault(require("crypto"));
 const createDocument = async (file, ownerId) => {
-    return prisma_1.default.document.create({
+    const document = await prisma_1.default.document.create({
         data: {
             filename: file.filename,
             originalName: file.originalname,
@@ -20,6 +25,25 @@ const createDocument = async (file, ownerId) => {
             ownerId,
         },
     });
+    const extractedText = await (0, parser_1.parseDocument)(document.path);
+    const chunks = await (0, chunk_service_1.splitIntoChunks)(extractedText);
+    console.log("Number of chunks:", chunks.length);
+    chunks.forEach((chunk, index) => {
+        console.log(`\n===== CHUNK ${index + 1} =====`);
+        console.log(chunk);
+    });
+    for (const chunk of chunks) {
+        const embedding = await (0, embedding_service_1.createEmbedding)(chunk);
+        await (0, qdrant_service_1.storeEmbedding)(crypto_1.default.randomUUID(), embedding, {
+            documentId: document.id,
+            ownerId,
+            text: chunk,
+        });
+    }
+    console.log("\n========== EXTRACTED TEXT ==========\n");
+    console.log(extractedText);
+    console.log("\n====================================\n");
+    return document;
 };
 exports.createDocument = createDocument;
 const getDocuments = async (userId) => {
