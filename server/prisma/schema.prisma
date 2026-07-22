@@ -8,45 +8,75 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
+  id       String @id @default(cuid())
+  name     String
+  email    String @unique
+  password String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   documents Document[]
+  chats     Chat[]
 }
 
 model Document {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  filename      String
-  originalName  String
-  mimeType      String
-  size          Int
-  path          String
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String
 
-  status        DocumentStatus @default(UPLOADED)
+  status DocumentStatus @default(UPLOADED)
 
-  pageCount     Int?
-  chunkCount    Int?
+  pageCount  Int?
+  chunkCount Int?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  ownerId       String
-  owner         User @relation(fields:[ownerId], references:[id], onDelete: Cascade)
+  chats Chat[]
+
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  documentChunks DocumentChunk[]
 }
 
 model DocumentChunk {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   content    String
   chunkIndex Int
 
   documentId String
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Chat {
+  id String @id @default(cuid())
+
+  question String
+  answer   String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  documentId String?
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([documentId])
+}
+
+enum DocumentStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
 }
